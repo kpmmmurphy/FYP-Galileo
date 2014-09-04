@@ -86,12 +86,14 @@ def main():
 
 	print "Starting Send Thread"
 	sendThread  = threading.Thread(target=sendSensorValues,args=(session,))
-	#sendThread.daemon = True
+	sendThread.setDaemon(True)
 	sendThread.start()
+
+
 	print "Starting Recieve Thread"
 	recieveThread  = threading.Thread(target=recievePacketFromPi,args=(session,))
-	#recieveThread.daemon = True
-	recieveThread.start()
+	recieveThread.setDaemon(True)
+
 
 #SOCKET AND CONNECTION STUFF
 def createPacket(service, payload):
@@ -251,6 +253,10 @@ def flashLed(led):
 
 try:
     main()
+    while True:
+	time.sleep(1)
+
+
 except KeyboardInterrupt, SystemExit:
     print "KeyboardInterrupted..."
     del temp
