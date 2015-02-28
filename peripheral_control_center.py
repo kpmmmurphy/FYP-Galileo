@@ -27,7 +27,6 @@ chords = [upmBuzzer.DO, upmBuzzer.RE, upmBuzzer.MI, upmBuzzer.FA,
           upmBuzzer.SI];
 
 def main():
-	global temp, light, buzzer, touch
 	createSensors()
 	while True:
 		print checkTouchPressed(touch)
@@ -53,10 +52,13 @@ def createSensors():
 
 
 def soundBuzzer(buzzer):
+	print "1"
 	for chord_ind in range (0,7):
+		print "2"
 	    # play each note for one second
-	    print buzzer.playSound(chords[chord_ind], 1000000)
+	    buzzer.playSound(chords[chord_ind], 1000000)
 	    time.sleep(0.1)
+	    print "3"
 
 def checkTouchPressed(touch):
 	isPressed = False
