@@ -49,7 +49,7 @@ SESSION_TYPE      = "type"
 #Wifi Direct 
 JSON_KEY_WIFI_DIRECT_SERVICE = "service"
 JSON_KEY_WIFI_DIRECT_PAYLOAD = "payload"
-SERVICE_PAIR = "pair"
+SERVICE_CONNECT = "connect"
 
 #Buzzer Notes
 chords = [upmBuzzer.DO, upmBuzzer.RE, upmBuzzer.MI, upmBuzzer.FA, 
@@ -57,11 +57,15 @@ chords = [upmBuzzer.DO, upmBuzzer.RE, upmBuzzer.MI, upmBuzzer.FA,
           upmBuzzer.SI]
 
 def main():
-	session = createSession()
 	sensorReadings = {}
 	createSensors()
+
+	#Connect via Multicast Channel
+	session = createSession()
 	multicastSocket = createMulticatSocket(session[SESSION_IP], MULTICAST_GRP, MULTICAST_PORT)
-	multicastSocket.sendto(json.dumps(createPacket(service=SERVICE_PAIR, payload=session)), (MULTICAST_GRP, MULTICAST_PORT))
+	connectPacket = { JSON_KEY_WIFI_DIRECT_SERVICE : SERVICE_CONNECT, JSON_KEY_WIFI_DIRECT_PAYLOAD : { "session" : session}}
+	multicastSocket.sendto(json.dumps(connectPacket), (MULTICAST_GRP, MULTICAST_PORT))
+
 	while True:
 		sensorReadings[SENSOR_TOUCH] = checkTouchPressed(touch)
 		sensorReadings[SENSOR_TEMP]  = readTemperature(temp)
