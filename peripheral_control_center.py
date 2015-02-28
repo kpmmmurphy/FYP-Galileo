@@ -86,7 +86,7 @@ def connectToPi(session,piSocket):
 	rawPacket  = conn.recv(1024)
 	try:
 		packet = json.loads(rawPacket)
-		if packet[JSON_KEY_WIFI_DIRECT_SERVICE] == SERVICE_PAIRED and packet[JSON_KEY_WIFI_DIRECT_PAYLOAD][SERVICE_PAIRED] == 200:
+		if packet[JSON_KEY_WIFI_DIRECT_SERVICE] == SERVICE_PAIRED and packet[JSON_KEY_WIFI_DIRECT_PAYLOAD][SERVICE_PAIRED]['status_code'] == 200:
 			print "Connect to RaspPi"
 			connected = True
 	except ValueError:
