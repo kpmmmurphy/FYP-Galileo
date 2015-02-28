@@ -73,7 +73,7 @@ def main():
 		time.sleep(1)
 
 #SOCKET AND CONNECTION STUFF
-def sendSensorValues(self, piRecieveSocket):
+def sendSensorValues(self, piSendSocket):
 	sensorReadings = {}
 	sensorReadings[SENSOR_TOUCH] = checkTouchPressed(touch)
 	sensorReadings[SENSOR_TEMP]  = readTemperature(temp)
@@ -83,7 +83,7 @@ def sendSensorValues(self, piRecieveSocket):
 	timer = threading.Timer(self.getSensorValueSendRate(), self.sendSensorValues,())
 	timer.start()
 
-def connectToPi(session,piRecieveSocket):
+def connectToPi(session, piRecieveSocket, piIPAddress):
 	connected = False
 	#Connect via Multicast Channel
 	multicastSocket = createMulticatSocket(session[SESSION_IP], MULTICAST_GRP, MULTICAST_PORT)
