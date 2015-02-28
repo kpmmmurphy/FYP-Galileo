@@ -96,7 +96,7 @@ def connectToPi(session, piRecieveSocket, piIPAddress):
 	try:
 		packet = json.loads(rawPacket)
 		if packet[JSON_KEY_WIFI_DIRECT_SERVICE] == SERVICE_PAIRED and packet[JSON_KEY_WIFI_DIRECT_PAYLOAD][SERVICE_PAIRED]['status_code'] == 200:
-			piIPAddress = piRecieveSocket.getpeername()
+			piIPAddress = conn.getpeername()
 			connected = True
 			print "Connect to RaspPi :: IP ->", piIPAddress
 	except ValueError:
