@@ -52,20 +52,20 @@ chords = [upmBuzzer.DO, upmBuzzer.RE, upmBuzzer.MI, upmBuzzer.FA,
           upmBuzzer.SI]
 
 def main():
-	global MULTICAST_GRP, MULTICAST_PORT
 	session = createSession()
 	sensorReadings = {}
 	createSensors()
 	multicastSocket = createMulticatSocket(session[SESSION_IP], MULTICAST_GRP, MULTICAST_PORT)
+	multicastSocket.sendTo("Did it work??", (MULTICAST_GRP, MULTICAST_PORT))
 	while True:
 		sensorReadings[SENSOR_TOUCH] = checkTouchPressed(touch)
 		sensorReadings[SENSOR_TEMP]  = readTemperature(temp)
 		sensorReadings[SENSOR_LIGHT] = readLightLevel(light)
 		print json.dumps(sensorReadings)
+		time.sleep(1)
 
 #SOCKET STUFF
 def createSession():
-	global SESSION_IP, SESSION_TIMESTAMP, SESSION_DEVICE_ID, SESSION_TYPE
 	timestamp   = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
 	ipAddress   = getIPAddress()
 	mac_address = get_mac()
@@ -135,7 +135,6 @@ def soundBuzzer(buzzer):
 def checkTouchPressed(touch):
 	isPressed = False
 	if touch.isPressed():
-		print touch.name(), 'is pressed'
 		isPressed = True
 	return isPressed
 
