@@ -8,6 +8,7 @@ import json
 import time
 import datetime
 import socket
+import struct
 from uuid import getnode as get_mac
 import threading 
 import pyupm_grove as grove
@@ -94,7 +95,8 @@ def createMulticatSocket(inetIP, multicastGroup, multicastPort):
 		#Bind to our default Multicast Port.
 		multicastSocket.bind((multicastGroup, multicastPort))
 		#multicastSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, socket.inet_aton(multicastGroup)+socket.inet_aton(inetIP))
-		multicastSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP)
+		mreq = struct.pack("4sl", socket.inet_aton(MCAST_GRP), socket.INADDR_ANY)
+		multicastSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 		multicastSocket.setblocking(True)	
 		return multicastSocket
 
