@@ -10,9 +10,9 @@ import pyupm_buzzer as upmBuzzer
 import pyupm_ttp223 as ttp223
 
 #Grove Pins
-PIN_LIGHT  = 4
-PIN_TEMP   = 3
 PIN_BUZZER = 2
+PIN_TEMP   = 3
+PIN_LIGHT  = 4
 PIN_TOUCH  = 6
 
 #Sensor Objects
@@ -27,6 +27,7 @@ chords = [upmBuzzer.DO, upmBuzzer.RE, upmBuzzer.MI, upmBuzzer.FA,
           upmBuzzer.SI];
 
 def main():
+	global temp, light, buzzer, touch
 	createSensors()
 	while True:
 		print checkTouchPressed(touch)
@@ -36,7 +37,7 @@ def main():
 
 def createSensors():
 	global temp, light, buzzer, touch
-	
+
 	print "Created Sensors ::"
 	temp = grove.GroveTemp(PIN_TEMP)
 	print temp.name()
