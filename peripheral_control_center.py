@@ -13,6 +13,7 @@ import pyupm_ttp223 as ttp223
 #Grove Pins
 PIN_TEMP   = 0
 PIN_LIGHT  = 1
+PIN_LED    = 2
 PIN_BUZZER = 3
 PIN_TOUCH  = 4
 
@@ -21,6 +22,7 @@ temp   = None
 light  = None
 buzzer = None
 touch  = None
+led    = None
 
 #Buzzer Notes
 chords = [upmBuzzer.DO, upmBuzzer.RE, upmBuzzer.MI, upmBuzzer.FA, 
@@ -34,9 +36,10 @@ def main():
 		print readTemperature(temp)
 		print readLightLevel(light)
 		soundBuzzer(buzzer)
+		flashLed(led)
 
 def createSensors():
-	global temp, light, buzzer, touch
+	global temp, light, buzzer, touch, led
 
 	print "Created Sensors ::"
 	temp = grove.GroveTemp(PIN_TEMP)
@@ -51,13 +54,12 @@ def createSensors():
 	touch = ttp223.TTP223(PIN_TOUCH)
 	print touch.name()
 
+	led = grove.GroveLed(PIN_LED)
+	print led.name()
 
 def soundBuzzer(buzzer):
 	global chords
-	for chord_ind in range (0,2):
-	    # play each note for one second
-		buzzer.playSound(chords[chord_ind], 1000000)
-		time.sleep(0.1)
+	buzzer.playSound(chords[0], 1000000)
 
 def checkTouchPressed(touch):
 	isPressed = False
@@ -72,6 +74,12 @@ def readTemperature(temp):
 def readLightLevel(light):
 	return light.value()
 
+def flashLed(led):
+	led.on()
+	time.sleep(1)
+	led.off()
+	time.sleep(1)
+
 try:
     main()
 except KeyboardInterrupt, SystemExit:
@@ -80,3 +88,4 @@ except KeyboardInterrupt, SystemExit:
     del light
     del touch
     del buzzer
+    del led
