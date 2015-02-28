@@ -24,7 +24,7 @@ touch  = None
 #Buzzer Notes
 chords = [upmBuzzer.DO, upmBuzzer.RE, upmBuzzer.MI, upmBuzzer.FA, 
           upmBuzzer.SOL, upmBuzzer.LA, upmBuzzer.SI, upmBuzzer.DO, 
-          upmBuzzer.SI];
+          upmBuzzer.SI]
 
 def main():
 	createSensors()
