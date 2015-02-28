@@ -58,7 +58,7 @@ def main():
 
 #SOCKET STUFF
 def createSession():
-	timestamp   = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+	timestamp   = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
 	ipAddress   = getIPAddress()
 	mac_address = get_mac()
 	sess = { SESSION_IP: ipAddress, SESSION_DEVICE_ID : mac_address, SESSION_TIMESTAMP : timestamp, SESSION_TYPE : "peripheral" } 
