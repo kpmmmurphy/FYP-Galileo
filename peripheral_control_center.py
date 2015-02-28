@@ -56,9 +56,9 @@ def soundBuzzer(buzzer):
 	for chord_ind in range (0,7):
 		print "2"
 	    # play each note for one second
-	    buzzer.playSound(chords[chord_ind], 1000000)
-	    time.sleep(0.1)
-	    print "3"
+		buzzer.playSound(chords[chord_ind], 1000000)
+		time.sleep(0.1)
+		print "3"
 
 def checkTouchPressed(touch):
 	isPressed = False
