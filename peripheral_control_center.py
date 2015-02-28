@@ -10,9 +10,9 @@ import pyupm_buzzer as upmBuzzer
 import pyupm_ttp223 as ttp223
 
 #Grove Pins
+PIN_TEMP   = 0
+PIN_LIGHT  = 1
 PIN_BUZZER = 2
-PIN_TEMP   = 3
-PIN_LIGHT  = 4
 PIN_TOUCH  = 6
 
 #Sensor Objects
@@ -33,7 +33,7 @@ def main():
 		print checkTouchPressed(touch)
 		print readTemperature(temp)
 		print readLightLevel(light)
-		#soundBuzzer(buzzer)
+		soundBuzzer(buzzer)
 
 def createSensors():
 	global temp, light, buzzer, touch
