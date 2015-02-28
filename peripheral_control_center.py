@@ -61,7 +61,7 @@ def main():
 	createSensors()
 	session  = createSession()
 	piSocket = createSocket(session[SESSION_IP], None)
-	conn, addr = piSocket.accept()
+	
 	
 	#Connect via Multicast Channel
 	multicastSocket = createMulticatSocket(session[SESSION_IP], MULTICAST_GRP, MULTICAST_PORT)
@@ -71,9 +71,9 @@ def main():
 	
 	#Create Socket and wait for ack
 	#{'payload': {'paired': {'status_code': 200}}, 'service': 'paired'}
-	
-	
-	rawPacket  = conn.recv(10240)
+	print "Opening Pi Socket"
+	conn, addr = piSocket.accept()
+	rawPacket  = conn.recv(1024)
 	try:
 		packet = json.loads(rawPacket)
 		print rawPacket
