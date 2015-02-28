@@ -6,7 +6,9 @@
 
 import json
 import time
+import datetime
 import socket
+from uuid import getnode as get_mac
 import threading 
 import pyupm_grove as grove
 import pyupm_buzzer as upmBuzzer
@@ -32,28 +34,40 @@ MULTICAST_PORT = 5007
 DEFAULT_PORT   = 5006
 DEFAULT_SERVER_PORT = 5005
 
+#Session Keys
+SESSION_IP        = "ip_address"
+SESSION_TIMESTAMP = "timestamp"
+SESSION_DEVICE_ID = "device_id" 
+SESSION_TYPE      = "type"
+
 #Buzzer Notes
 chords = [upmBuzzer.DO, upmBuzzer.RE, upmBuzzer.MI, upmBuzzer.FA, 
           upmBuzzer.SOL, upmBuzzer.LA, upmBuzzer.SI, upmBuzzer.DO, 
           upmBuzzer.SI]
 
 def main():
+	session = createSession()
 	sensorReadings = {}
 	createSensors()
-	ipAddress = getIPAddress()
-	print "ipAddress", ipAddress
-	multicastSocket = self.createMulticatSocket(ipAddress, CONSTS.MULTICAST_GRP, CONSTS.MULTICAST_PORT)
+	multicastSocket = self.createMulticatSocket(session[SESSION_IP], MULTICAST_GRP, MULTICAST_PORT)
 	while True:
 		sensorReadings[touch.name()] = checkTouchPressed(touch)
 		sensorReadings[temp.name()]  = readTemperature(temp)
 		sensorReadings[led.name()]   = readLightLevel(light)
 		print json.dumps(sensorReadings)
 
-
-
 #SOCKET STUFF
+def createSession():
+	timestamp   = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+	ipAddress   = getIPAddress()
+	mac_address = get_mac()
+	sess = { SESSION_IP: ipAddress, SESSION_DEVICE_ID : mac_address, SESSION_TIMESTAMP : timestamp, SESSION_TYPE : "peripheral" } 
+	json.dumps(sess)
+	return sess
+
 def getIPAddress():
 	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	#TODO This should be changed when connecting to PI!!!!!!!!!!!!!!!!!!!!!!
 	s.connect(("gmail.com",80))
 	return s.getsockname()[0]
 
