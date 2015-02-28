@@ -46,6 +46,11 @@ SESSION_TIMESTAMP = "timestamp"
 SESSION_DEVICE_ID = "device_id" 
 SESSION_TYPE      = "type"
 
+#Wifi Direct 
+JSON_KEY_WIFI_DIRECT_SERVICE = "service"
+JSON_KEY_WIFI_DIRECT_PAYLOAD = "payload"
+SERVICE_PAIR = "pair"
+
 #Buzzer Notes
 chords = [upmBuzzer.DO, upmBuzzer.RE, upmBuzzer.MI, upmBuzzer.FA, 
           upmBuzzer.SOL, upmBuzzer.LA, upmBuzzer.SI, upmBuzzer.DO, 
@@ -56,7 +61,7 @@ def main():
 	sensorReadings = {}
 	createSensors()
 	multicastSocket = createMulticatSocket(session[SESSION_IP], MULTICAST_GRP, MULTICAST_PORT)
-	multicastSocket.sendto("{'hi' : 'Did it work?'}", (MULTICAST_GRP, MULTICAST_PORT))
+	multicastSocket.sendto(json.dumps(createPacket(service=SERVICE_PAIR, payload=session)), (MULTICAST_GRP, MULTICAST_PORT))
 	while True:
 		sensorReadings[SENSOR_TOUCH] = checkTouchPressed(touch)
 		sensorReadings[SENSOR_TEMP]  = readTemperature(temp)
@@ -65,6 +70,15 @@ def main():
 		time.sleep(1)
 
 #SOCKET STUFF
+def createPacket(service, payload):
+	_packet  = {}
+	_payload = {}
+
+	_packet[JSON_KEY_WIFI_DIRECT_SERVICE] = service 
+	_payload[service] = payload
+	_packet[JSON_KEY_WIFI_DIRECT_PAYLOAD] = _payload
+	return _packet
+
 def createSession():
 	timestamp   = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
 	ipAddress   = getIPAddress()
@@ -101,7 +115,6 @@ def createMulticatSocket(inetIP, multicastGroup, multicastPort):
 	#Socket must be connected to the wlan0 interface's IP address
 	#Bind to our default Multicast Port.
 	multicastSocket.bind((multicastGroup, multicastPort))
-	#multicastSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, socket.inet_aton(multicastGroup)+socket.inet_aton(inetIP))
 	mreq = struct.pack("4sl", socket.inet_aton(multicastGroup), socket.INADDR_ANY)
 	multicastSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 	multicastSocket.setblocking(True)	
