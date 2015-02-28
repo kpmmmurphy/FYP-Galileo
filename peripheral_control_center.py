@@ -53,7 +53,10 @@ def main():
 
 #SOCKET STUFF
 def getIPAddress():
-	return socket.gethostbyname(socket.gethostname())
+	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	s.connect(("gmail.com",80))
+	return s.getsockname()[0])
+
 def createSocket(bindToIP, connectToIP):
 	newSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	newSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
