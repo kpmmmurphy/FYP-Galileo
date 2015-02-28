@@ -47,6 +47,7 @@ chords = [upmBuzzer.DO, upmBuzzer.RE, upmBuzzer.MI, upmBuzzer.FA,
           upmBuzzer.SI]
 
 def main():
+	global MULTICAST_GRP, MULTICAST_PORT
 	session = createSession()
 	sensorReadings = {}
 	createSensors()
@@ -59,6 +60,7 @@ def main():
 
 #SOCKET STUFF
 def createSession():
+	global SESSION_IP, SESSION_TIMESTAMP, SESSION_DEVICE_ID, SESSION_TYPE
 	timestamp   = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
 	ipAddress   = getIPAddress()
 	mac_address = get_mac()
@@ -89,16 +91,16 @@ def createSocket(bindToIP, connectToIP):
 	return newSocket
 
 def createMulticatSocket(inetIP, multicastGroup, multicastPort):
-		multicastSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-		multicastSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-		#Socket must be connected to the wlan0 interface's IP address
-		#Bind to our default Multicast Port.
-		multicastSocket.bind((multicastGroup, multicastPort))
-		#multicastSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, socket.inet_aton(multicastGroup)+socket.inet_aton(inetIP))
-		mreq = struct.pack("4sl", socket.inet_aton(MCAST_GRP), socket.INADDR_ANY)
-		multicastSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
-		multicastSocket.setblocking(True)	
-		return multicastSocket
+	multicastSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+	multicastSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+	#Socket must be connected to the wlan0 interface's IP address
+	#Bind to our default Multicast Port.
+	multicastSocket.bind((multicastGroup, multicastPort))
+	#multicastSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, socket.inet_aton(multicastGroup)+socket.inet_aton(inetIP))
+	mreq = struct.pack("4sl", socket.inet_aton(multicastGroup), socket.INADDR_ANY)
+	multicastSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+	multicastSocket.setblocking(True)	
+	return multicastSocket
 
 
 #SENSORS----------------------
