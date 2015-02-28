@@ -66,6 +66,7 @@ def main():
 	#Connect via Multicast Channel
 	multicastSocket = createMulticatSocket(session[SESSION_IP], MULTICAST_GRP, MULTICAST_PORT)
 	connectPacket = { JSON_KEY_WIFI_DIRECT_SERVICE : SERVICE_CONNECT, JSON_KEY_WIFI_DIRECT_PAYLOAD : { "session" : session}}
+	print "Sending Multicast Pair Packet"
 	multicastSocket.sendto(json.dumps(connectPacket), (MULTICAST_GRP, MULTICAST_PORT))
 	
 	#Create Socket and wait for ack
@@ -133,7 +134,7 @@ def createMulticatSocket(inetIP, multicastGroup, multicastPort):
 	multicastSocket.bind((multicastGroup, multicastPort))
 	mreq = struct.pack("4sl", socket.inet_aton(multicastGroup), socket.INADDR_ANY)
 	multicastSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
-	multicastSocket.setblocking(True)	
+	#multicastSocket.setblocking(True)	
 	return multicastSocket
 
 
