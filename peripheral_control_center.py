@@ -33,7 +33,7 @@ def main():
 		print checkTouchPressed(touch)
 		print readTemperature(temp)
 		print readLightLevel(light)
-		soundBuzzer(buzzer)
+		#soundBuzzer(buzzer)
 
 def createSensors():
 	global temp, light, buzzer, touch
