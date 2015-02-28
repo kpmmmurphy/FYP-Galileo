@@ -39,7 +39,7 @@ def createSensors():
 	buzzer = upmBuzzer.Buzzer(PIN_BUZZER)
 	print buzzer.name()
 
-	touch = ttp223.TTP223(touch)
+	touch = ttp223.TTP223(PIN_TOUCH)
 	print touch.name()
 
 
