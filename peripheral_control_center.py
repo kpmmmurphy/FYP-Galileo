@@ -50,6 +50,7 @@ SESSION_TYPE      = "type"
 JSON_KEY_WIFI_DIRECT_SERVICE = "service"
 JSON_KEY_WIFI_DIRECT_PAYLOAD = "payload"
 SERVICE_CONNECT = "connect"
+SERVICE_PAIRED  = "paired"
 
 #Buzzer Notes
 chords = [upmBuzzer.DO, upmBuzzer.RE, upmBuzzer.MI, upmBuzzer.FA, 
@@ -57,28 +58,13 @@ chords = [upmBuzzer.DO, upmBuzzer.RE, upmBuzzer.MI, upmBuzzer.FA,
           upmBuzzer.SI]
 
 def main():
+	connectedToPi  = False
 	sensorReadings = {}
 	createSensors()
 	session  = createSession()
 	piSocket = createSocket(session[SESSION_IP], None)
-	
-	
-	#Connect via Multicast Channel
-	multicastSocket = createMulticatSocket(session[SESSION_IP], MULTICAST_GRP, MULTICAST_PORT)
-	connectPacket = { JSON_KEY_WIFI_DIRECT_SERVICE : SERVICE_CONNECT, JSON_KEY_WIFI_DIRECT_PAYLOAD : { "session" : session}}
-	print "Sending Multicast Pair Packet"
-	multicastSocket.sendto(json.dumps(connectPacket), (MULTICAST_GRP, MULTICAST_PORT))
-	
-	#Create Socket and wait for ack
-	#{'payload': {'paired': {'status_code': 200}}, 'service': 'paired'}
-	print "Opening Pi Socket"
-	conn, addr = piSocket.accept()
-	rawPacket  = conn.recv(1024)
-	try:
-		packet = json.loads(rawPacket)
-		print rawPacket
-	except ValueError:
-		print "ValueError :: Unable to Encode Json Object"
+	while not connectedToPi:
+		connectedToPi = connectToPi()
 
 	while True:
 		sensorReadings[SENSOR_TOUCH] = checkTouchPressed(touch)
@@ -88,6 +74,25 @@ def main():
 		time.sleep(1)
 
 #SOCKET STUFF
+def connectToPi():
+	connected = False
+	#Connect via Multicast Channel
+	multicastSocket = createMulticatSocket(session[SESSION_IP], MULTICAST_GRP, MULTICAST_PORT)
+	connectPacket = { JSON_KEY_WIFI_DIRECT_SERVICE : SERVICE_CONNECT, JSON_KEY_WIFI_DIRECT_PAYLOAD : { "session" : session}}
+	multicastSocket.sendto(json.dumps(connectPacket), (MULTICAST_GRP, MULTICAST_PORT))
+	multicastSocket.close()
+	#Create Socket and wait for ack -> {'payload': {'paired': {'status_code': 200}}, 'service': 'paired'}
+	conn, addr = piSocket.accept()
+	rawPacket  = conn.recv(1024)
+	try:
+		packet = json.loads(rawPacket)
+		if packet[JSON_KEY_WIFI_DIRECT_SERVICE] == SERVICE_PAIRED && packet[JSON_KEY_WIFI_DIRECT_PAYLOAD][SERVICE_PAIRED] == 200:
+			print "Connect to RaspPi"
+			connected = True
+	except ValueError:
+		print "ValueError :: Unable to Encode Json Object"
+	return connected
+
 def createPacket(service, payload):
 	_packet  = {}
 	_payload = {}
