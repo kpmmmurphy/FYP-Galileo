@@ -22,6 +22,11 @@ PIN_LED    = 2
 PIN_BUZZER = 3
 PIN_TOUCH  = 4
 
+#Sensor Names
+SENSOR_TEMP  = "temperature"
+SENSOR_LIGHT = "light"
+SENSOR_TOUCH = "touch"
+
 #Sensor Objects
 temp   = None
 light  = None
@@ -53,9 +58,9 @@ def main():
 	createSensors()
 	multicastSocket = createMulticatSocket(session[SESSION_IP], MULTICAST_GRP, MULTICAST_PORT)
 	while True:
-		sensorReadings[touch.name()] = checkTouchPressed(touch)
-		sensorReadings[temp.name()]  = readTemperature(temp)
-		sensorReadings[led.name()]   = readLightLevel(light)
+		sensorReadings[SENSOR_TOUCH] = checkTouchPressed(touch)
+		sensorReadings[SENSOR_TEMP]  = readTemperature(temp)
+		sensorReadings[SENSOR_LIGHT] = readLightLevel(light)
 		print json.dumps(sensorReadings)
 
 #SOCKET STUFF
