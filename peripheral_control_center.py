@@ -49,13 +49,12 @@ def soundBuzzer(buzzer):
 	    print buzzer.playSound(chords[chord_ind], 1000000)
 	    time.sleep(0.1)
 
-
 def checkTouchPressed(touch):
 	isPressed = False
-    if touch.isPressed():
-        print touch.name(), 'is pressed'
-        isPressed = True
-    return isPressed
+	if touch.isPressed():
+		print touch.name(), 'is pressed'
+		isPressed = True
+	return isPressed
 
 def readTemperature(temp):
 	return celsius = temp.value()
