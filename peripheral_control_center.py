@@ -93,7 +93,7 @@ def sendSensorValues(piIPAddress, session):
 def connectToPi(session, piRecieveSocket, piIPAddress):
 	connected = False
 	#Connect via Multicast Channel
-	multicastSocket = createMulticatSocket(session[SESSION_TIMESTAMPIP], MULTICAST_GRP, MULTICAST_PORT)
+	multicastSocket = createMulticatSocket(session[SESSION_IP], MULTICAST_GRP, MULTICAST_PORT)
 	connectPacket = { JSON_KEY_WIFI_DIRECT_SERVICE : SERVICE_CONNECT, JSON_KEY_WIFI_DIRECT_PAYLOAD : { "session" : session}}
 	multicastSocket.sendto(json.dumps(connectPacket), (MULTICAST_GRP, MULTICAST_PORT))
 	multicastSocket.close()
