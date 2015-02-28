@@ -78,21 +78,22 @@ def sendPacketToPi(packet, piIPAddress):
 		piSendSocket.close()
 
 def sendSensorValues(piIPAddress, session):
+	print "Sending Sensor Values"
 	sensorReadings = {}
 	sensorReadings[SENSOR_TOUCH]      = checkTouchPressed(touch)
 	sensorReadings[SENSOR_TEMP]       = readTemperature(temp)
 	sensorReadings[SENSOR_LIGHT]      = readLightLevel(light)
 	sensorReadings[SESSION_TIMESTAMP] = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
 	sensorReadings[SESSION_DEVICE_ID] = session[SESSION_DEVICE_ID]
+	print json.dumps(sensorReadings, default=json_serial)
 	sendPacketToPi(createPacket(service=JSON_VALUE_WIFI_DIRECT_CURRENT_PERIPHERAL_SENSOR_VALUES, payload=sensorReadings), piIPAddress)
-
 	timer = threading.Timer(10, sendSensorValues,(piIPAddress, session))
 	timer.start()
 
 def connectToPi(session, piRecieveSocket, piIPAddress):
 	connected = False
 	#Connect via Multicast Channel
-	multicastSocket = createMulticatSocket(session[SESSION_IP], MULTICAST_GRP, MULTICAST_PORT)
+	multicastSocket = createMulticatSocket(session[SESSION_TIMESTAMPIP], MULTICAST_GRP, MULTICAST_PORT)
 	connectPacket = { JSON_KEY_WIFI_DIRECT_SERVICE : SERVICE_CONNECT, JSON_KEY_WIFI_DIRECT_PAYLOAD : { "session" : session}}
 	multicastSocket.sendto(json.dumps(connectPacket), (MULTICAST_GRP, MULTICAST_PORT))
 	multicastSocket.close()
