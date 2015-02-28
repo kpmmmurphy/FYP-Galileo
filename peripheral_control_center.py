@@ -59,6 +59,7 @@ chords = [upmBuzzer.DO, upmBuzzer.RE, upmBuzzer.MI, upmBuzzer.FA,
 def main():
 	sensorReadings = {}
 	createSensors()
+	piSocket   = createSocket(session[SESSION_IP], None)
 	
 	#Connect via Multicast Channel
 	session = createSession()
@@ -67,7 +68,8 @@ def main():
 	multicastSocket.sendto(json.dumps(connectPacket), (MULTICAST_GRP, MULTICAST_PORT))
 	
 	#Create Socket and wait for ack
-	piSocket   = createSocket(session[SESSION_IP], None)
+	#{'payload': {'paired': {'status_code': 200}}, 'service': 'paired'}
+	
 	conn, addr = piSocket.accept()
 	rawPacket  = conn.recv(10240)
 	try:
@@ -110,7 +112,7 @@ def getIPAddress():
 def createSocket(bindToIP, connectToIP):
 	newSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	newSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-	newSocket.setblocking(True)
+	#newSocket.setblocking(True)
 
 	if bindToIP is not None:
 		#For receiving 
