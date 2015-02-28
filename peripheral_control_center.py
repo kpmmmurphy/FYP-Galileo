@@ -49,7 +49,7 @@ def main():
 	session = createSession()
 	sensorReadings = {}
 	createSensors()
-	multicastSocket = self.createMulticatSocket(session[SESSION_IP], MULTICAST_GRP, MULTICAST_PORT)
+	multicastSocket = createMulticatSocket(session[SESSION_IP], MULTICAST_GRP, MULTICAST_PORT)
 	while True:
 		sensorReadings[touch.name()] = checkTouchPressed(touch)
 		sensorReadings[temp.name()]  = readTemperature(temp)
