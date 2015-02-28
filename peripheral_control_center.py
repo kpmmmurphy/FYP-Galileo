@@ -57,7 +57,7 @@ def checkTouchPressed(touch):
 	return isPressed
 
 def readTemperature(temp):
-	return celsius = temp.value()
+	return temp.value()
 
 def readLightLevel(light):
 	return light.value()
