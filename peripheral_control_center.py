@@ -5,6 +5,7 @@
 #Date  : 28 - Febuary - 15
 
 import json
+import time
 import pyupm_grove as grove
 import pyupm_buzzer as upmBuzzer
 import pyupm_ttp223 as ttp223
@@ -25,7 +26,7 @@ touch  = None
 chords = [upmBuzzer.DO, upmBuzzer.RE, upmBuzzer.MI, upmBuzzer.FA, 
           upmBuzzer.SOL, upmBuzzer.LA, upmBuzzer.SI, upmBuzzer.DO, 
           upmBuzzer.SI]
-              
+
 def main():
 	createSensors()
 	while True:
@@ -53,7 +54,7 @@ def createSensors():
 
 def soundBuzzer(buzzer):
 	global chords
-	for chord_ind in range (0,7):
+	for chord_ind in range (0,2):
 	    # play each note for one second
 		buzzer.playSound(chords[chord_ind], 1000000)
 		time.sleep(0.1)
