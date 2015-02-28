@@ -118,11 +118,11 @@ def createSocket(bindToIP, connectToIP):
 
 	if bindToIP is not None:
 		#For receiving 
-		newSocket.bind((bindToIP, DEFAULT_SERVER_PORT))
+		newSocket.bind((bindToIP, DEFAULT_PORT))
 		newSocket.listen(5)
 	elif connectToIP is not None:
 		#For sending
-		newSocket.connect((connectToIP, DEFAULT_PORT))
+		newSocket.connect((connectToIP, DEFAULT_SERVER_PORT))
 
 	return newSocket
 
