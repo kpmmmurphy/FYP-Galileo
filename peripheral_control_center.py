@@ -114,7 +114,7 @@ def getIPAddress():
 def createSocket(bindToIP, connectToIP):
 	newSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	newSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-	newSocket.setblocking(True)
+	#newSocket.setblocking(True)
 
 	if bindToIP is not None:
 		#For receiving 
