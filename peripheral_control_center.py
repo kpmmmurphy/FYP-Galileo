@@ -64,7 +64,7 @@ def main():
 	session  = createSession()
 	piSocket = createSocket(session[SESSION_IP], None)
 	while not connectedToPi:
-		connectedToPi = connectToPi()
+		connectedToPi = connectToPi(piSocket)
 
 	while True:
 		sensorReadings[SENSOR_TOUCH] = checkTouchPressed(touch)
@@ -74,7 +74,7 @@ def main():
 		time.sleep(1)
 
 #SOCKET STUFF
-def connectToPi():
+def connectToPi(piSocket):
 	connected = False
 	#Connect via Multicast Channel
 	multicastSocket = createMulticatSocket(session[SESSION_IP], MULTICAST_GRP, MULTICAST_PORT)
