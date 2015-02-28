@@ -42,7 +42,7 @@ DEFAULT_SERVER_PORT = 5005
 
 #Session Keys
 SESSION_IP        = "ip_address"
-SESSION_TIMESTAMP = "timestamp"
+SESSION_TIMESTAMP = "time_stamp"
 SESSION_DEVICE_ID = "device_id" 
 SESSION_TYPE      = "type"
 
