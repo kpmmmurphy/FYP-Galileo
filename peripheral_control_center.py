@@ -13,7 +13,7 @@ import pyupm_ttp223 as ttp223
 PIN_TEMP   = 0
 PIN_LIGHT  = 1
 PIN_BUZZER = 2
-PIN_TOUCH  = 6
+PIN_TOUCH  = 4
 
 #Sensor Objects
 temp   = None
@@ -21,10 +21,7 @@ light  = None
 buzzer = None
 touch  = None
 
-#Buzzer Notes
-chords = [upmBuzzer.DO, upmBuzzer.RE, upmBuzzer.MI, upmBuzzer.FA, 
-          upmBuzzer.SOL, upmBuzzer.LA, upmBuzzer.SI, upmBuzzer.DO, 
-          upmBuzzer.SI]
+
 
 def main():
 	createSensors()
@@ -52,7 +49,10 @@ def createSensors():
 
 
 def soundBuzzer(buzzer):
-	global chords
+	#Buzzer Notes
+	chords = [upmBuzzer.DO, upmBuzzer.RE, upmBuzzer.MI, upmBuzzer.FA, 
+              upmBuzzer.SOL, upmBuzzer.LA, upmBuzzer.SI, upmBuzzer.DO, 
+              upmBuzzer.SI]
 	for chord_ind in range (0,7):
 	    # play each note for one second
 		buzzer.playSound(chords[chord_ind], 1000000)
