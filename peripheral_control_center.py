@@ -51,6 +51,7 @@ JSON_KEY_WIFI_DIRECT_SERVICE = "service"
 JSON_KEY_WIFI_DIRECT_PAYLOAD = "payload"
 SERVICE_CONNECT = "connect"
 SERVICE_PAIRED  = "paired"
+JSON_VALUE_WIFI_DIRECT_CURRENT_PERIPHERAL_SENSOR_VALUES = "peripheral_sensor_values"
 
 #Buzzer Notes
 chords = [upmBuzzer.DO, upmBuzzer.RE, upmBuzzer.MI, upmBuzzer.FA, 
@@ -67,20 +68,25 @@ def main():
 	while not connectedToPi:
 		connectedToPi = connectToPi(session, piRecieveSocket, piIPAddress)
 
-	while True:
-		
-		print json.dumps(sensorReadings)
-		time.sleep(1)
+	sendSensorValues(piIPAddress, session)
 
 #SOCKET AND CONNECTION STUFF
-def sendSensorValues(self, piSendSocket):
-	sensorReadings = {}
-	sensorReadings[SENSOR_TOUCH] = checkTouchPressed(touch)
-	sensorReadings[SENSOR_TEMP]  = readTemperature(temp)
-	sensorReadings[SENSOR_LIGHT] = readLightLevel(light)
-	self.sendPacketToAllPeers(self.createPacket(service=CONSTS.JSON_VALUE_WIFI_DIRECT_CURRENT_SENSOR_VALUES, payload=payload))
+def sendPacketToPi(packet, piIPAddress):
+	if piIPAddress != "":
+		piSendSocket = createSocket(None, piIPAddress)
+		piSendSocket.send(json.dumps(packet, default=json_serial))
+		piSendSocket.close()
 
-	timer = threading.Timer(self.getSensorValueSendRate(), self.sendSensorValues,())
+def sendSensorValues(piIPAddress, session):
+	sensorReadings = {}
+	sensorReadings[SENSOR_TOUCH]      = checkTouchPressed(touch)
+	sensorReadings[SENSOR_TEMP]       = readTemperature(temp)
+	sensorReadings[SENSOR_LIGHT]      = readLightLevel(light)
+	sensorReadings[SESSION_TIMESTAMP] = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+	sensorReadings[SESSION_DEVICE_ID] = session[SESSION_DEVICE_ID]
+	sendPacketToPi(createPacket(service=JSON_VALUE_WIFI_DIRECT_CURRENT_PERIPHERAL_SENSOR_VALUES, payload=sensorReadings), piIPAddress)
+
+	timer = threading.Timer(10, sendSensorValues,(piIPAddress, session))
 	timer.start()
 
 def connectToPi(session, piRecieveSocket, piIPAddress):
@@ -96,7 +102,7 @@ def connectToPi(session, piRecieveSocket, piIPAddress):
 	try:
 		packet = json.loads(rawPacket)
 		if packet[JSON_KEY_WIFI_DIRECT_SERVICE] == SERVICE_PAIRED and packet[JSON_KEY_WIFI_DIRECT_PAYLOAD][SERVICE_PAIRED]['status_code'] == 200:
-			piIPAddress = conn.getpeername()
+			piIPAddress, piPortNo = conn.getpeername()
 			connected = True
 			print "Connect to RaspPi :: IP ->", piIPAddress
 	except ValueError:
@@ -204,3 +210,18 @@ except KeyboardInterrupt, SystemExit:
     del touch
     del buzzer
     del led
+
+"""
+JSON serializer for objects not serializable by default json code.
+Required as the datetime object won't serialize by default.
+"""
+def json_serial(obj):
+    from datetime import datetime
+    from decimal import Decimal
+
+    if isinstance(obj, datetime):
+        serial = obj.isoformat()
+        return serial 
+
+    if isinstance(obj, Decimal):
+        return int(float(obj)) 
