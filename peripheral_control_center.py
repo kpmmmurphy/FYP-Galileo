@@ -59,12 +59,22 @@ chords = [upmBuzzer.DO, upmBuzzer.RE, upmBuzzer.MI, upmBuzzer.FA,
 def main():
 	sensorReadings = {}
 	createSensors()
-
+	
 	#Connect via Multicast Channel
 	session = createSession()
 	multicastSocket = createMulticatSocket(session[SESSION_IP], MULTICAST_GRP, MULTICAST_PORT)
 	connectPacket = { JSON_KEY_WIFI_DIRECT_SERVICE : SERVICE_CONNECT, JSON_KEY_WIFI_DIRECT_PAYLOAD : { "session" : session}}
 	multicastSocket.sendto(json.dumps(connectPacket), (MULTICAST_GRP, MULTICAST_PORT))
+	
+	#Create Socket and wait for ack
+	piSocket = createSocket(session[SESSION_IP], None)
+	conn, addr = peerSocket.accept()
+	rawPacket  = conn.recv(10240)
+	try:
+		packet = json.loads(rawPacket)
+		print rawPacket
+	except ValueError:
+		print "ValueError :: Unable to Encode Json Object"
 
 	while True:
 		sensorReadings[SENSOR_TOUCH] = checkTouchPressed(touch)
