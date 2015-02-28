@@ -58,23 +58,32 @@ chords = [upmBuzzer.DO, upmBuzzer.RE, upmBuzzer.MI, upmBuzzer.FA,
           upmBuzzer.SI]
 
 def main():
+	piIPAddress    = ""
 	connectedToPi  = False
-	sensorReadings = {}
 	createSensors()
 	session  = createSession()
-	piSocket = createSocket(session[SESSION_IP], None)
+	piRecieveSocket = createSocket(session[SESSION_IP], None)
+
 	while not connectedToPi:
-		connectedToPi = connectToPi(session, piSocket)
+		connectedToPi = connectToPi(session, piRecieveSocket, piIPAddress)
 
 	while True:
-		sensorReadings[SENSOR_TOUCH] = checkTouchPressed(touch)
-		sensorReadings[SENSOR_TEMP]  = readTemperature(temp)
-		sensorReadings[SENSOR_LIGHT] = readLightLevel(light)
+		
 		print json.dumps(sensorReadings)
 		time.sleep(1)
 
-#SOCKET STUFF
-def connectToPi(session,piSocket):
+#SOCKET AND CONNECTION STUFF
+def sendSensorValues(self, piRecieveSocket):
+	sensorReadings = {}
+	sensorReadings[SENSOR_TOUCH] = checkTouchPressed(touch)
+	sensorReadings[SENSOR_TEMP]  = readTemperature(temp)
+	sensorReadings[SENSOR_LIGHT] = readLightLevel(light)
+	self.sendPacketToAllPeers(self.createPacket(service=CONSTS.JSON_VALUE_WIFI_DIRECT_CURRENT_SENSOR_VALUES, payload=payload))
+
+	timer = threading.Timer(self.getSensorValueSendRate(), self.sendSensorValues,())
+	timer.start()
+
+def connectToPi(session,piRecieveSocket):
 	connected = False
 	#Connect via Multicast Channel
 	multicastSocket = createMulticatSocket(session[SESSION_IP], MULTICAST_GRP, MULTICAST_PORT)
@@ -82,13 +91,14 @@ def connectToPi(session,piSocket):
 	multicastSocket.sendto(json.dumps(connectPacket), (MULTICAST_GRP, MULTICAST_PORT))
 	multicastSocket.close()
 	#Create Socket and wait for ack -> {'payload': {'paired': {'status_code': 200}}, 'service': 'paired'}
-	conn, addr = piSocket.accept()
+	conn, addr = piRecieveSocket.accept()
 	rawPacket  = conn.recv(1024)
 	try:
 		packet = json.loads(rawPacket)
 		if packet[JSON_KEY_WIFI_DIRECT_SERVICE] == SERVICE_PAIRED and packet[JSON_KEY_WIFI_DIRECT_PAYLOAD][SERVICE_PAIRED]['status_code'] == 200:
-			print "Connect to RaspPi"
+			piIPAddress = piRecieveSocket.getpeername()
 			connected = True
+			print "Connect to RaspPi :: IP ->", piIPAddress
 	except ValueError:
 		print "ValueError :: Unable to Encode Json Object"
 	return connected
