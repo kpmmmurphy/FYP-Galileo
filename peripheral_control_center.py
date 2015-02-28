@@ -15,6 +15,12 @@ PIN_TEMP   = 3
 PIN_BUZZER = 2
 PIN_TOUCH  = 6
 
+#Sensor Objects
+temp   = None
+light  = None
+buzzer = None
+touch  = None
+
 #Buzzer Notes
 chords = [upmBuzzer.DO, upmBuzzer.RE, upmBuzzer.MI, upmBuzzer.FA, 
           upmBuzzer.SOL, upmBuzzer.LA, upmBuzzer.SI, upmBuzzer.DO, 
@@ -29,6 +35,8 @@ def main():
 		soundBuzzer(buzzer)
 
 def createSensors():
+	global temp, light, buzzer, touch
+	
 	print "Created Sensors ::"
 	temp = grove.GroveTemp(PIN_TEMP)
 	print temp.name()
