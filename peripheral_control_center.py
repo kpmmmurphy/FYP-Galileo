@@ -67,8 +67,8 @@ def main():
 	multicastSocket.sendto(json.dumps(connectPacket), (MULTICAST_GRP, MULTICAST_PORT))
 	
 	#Create Socket and wait for ack
-	piSocket = createSocket(session[SESSION_IP], None)
-	conn, addr = peerSocket.accept()
+	piSocket   = createSocket(session[SESSION_IP], None)
+	conn, addr = piSocket.accept()
 	rawPacket  = conn.recv(10240)
 	try:
 		packet = json.loads(rawPacket)
