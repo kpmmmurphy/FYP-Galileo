@@ -85,9 +85,11 @@ def main():
 		connectedToPi = connectToPi(session, createSocket(session[SESSION_IP], None))
 
 	sendThread  = threading.Thread(target=sendSensorValues,args=(session,))
+	sendThread.daemon = True
 	sendThread.start()
 
 	recieveThread  = threading.Thread(target=recievePacketFromPi,args=(session,))
+	recieveThread.daemon = True
 	recieveThread.start()
 
 #SOCKET AND CONNECTION STUFF
@@ -120,9 +122,10 @@ def sendPacketToPi(packet):
 	if piIPAddress != "":
 		try:
 			print "Sending Sensor Values to Pi"
-			print json.dumps(packet, default=json_serial)
+			packetString = json.dumps(packet, default=json_serial)
+			print packetString
 			piSendSocket = createSocket(bindToIP=None, connectToIP=piIPAddress)
-			piSendSocket.send(json.dumps(packet, default=json_serial))
+			piSendSocket.send(packetString)
 			piSendSocket.close()
 		except:
 			print "RaspPi Refused Connection" 
@@ -137,16 +140,19 @@ def recievePacketFromPi(session):
 
 
 def sendSensorValues(session):
-	sensorReadings = {}
-	sensorReadings[SENSOR_TOUCH]      = checkTouchPressed(touch)
-	sensorReadings[SENSOR_TEMP]       = readTemperature(temp)
-	sensorReadings[SENSOR_LIGHT]      = readLightLevel(light)
-	sensorReadings[SESSION_TIMESTAMP] = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
-	sensorReadings[SESSION_DEVICE_ID] = session[SESSION_DEVICE_ID]
+        while True:
+		sensorReadings = {}
+		sensorReadings[SENSOR_TOUCH]      = checkTouchPressed(touch)
+		sensorReadings[SENSOR_TEMP]       = readTemperature(temp)
+		sensorReadings[SENSOR_LIGHT]      = readLightLevel(light)
+		sensorReadings[SESSION_TIMESTAMP] = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+		sensorReadings[SESSION_DEVICE_ID] = session[SESSION_DEVICE_ID]
 
-	sendPacketToPi(createPacket(service=JSON_VALUE_WIFI_DIRECT_CURRENT_PERIPHERAL_SENSOR_VALUES, payload=sensorReadings))
-	timer = threading.Timer(10, sendSensorValues,(session,))
-	timer.start()
+		sensorPacket = createPacket(service=JSON_VALUE_WIFI_DIRECT_CURRENT_PERIPHERAL_SENSOR_VALUES, payload=sensorReadings)
+		sendPacketToPi(sensorPacket)
+		
+
+
 
 def connectToPi(session, piRecieveSocket):
 	global piIPAddress
@@ -181,8 +187,10 @@ def createSession():
 def getIPAddress():
 	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	#TODO This should be changed when connecting to PI!!!!!!!!!!!!!!!!!!!!!!
-	s.connect(("gmail.com",80))
-	return s.getsockname()[0]
+	s.connect(("192.168.42.1",80))
+	myIP = s.getsockname()[0]
+	print "My IP : ", myIP
+	return myIP
 
 def createMulticatSocket(inetIP, multicastGroup, multicastPort):
 	multicastSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
