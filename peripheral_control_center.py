@@ -137,22 +137,23 @@ def recievePacketFromPi(session):
 		print "Waiting to Recieve Packet from Pi"
 		rawPacket  = conn.recv(1024)
 		print rawPacket
+		try:
+			packet = json.loads(rawPacket)
+		except ValueError:
+			print "Unable to Decode JSON Object"
 
 
 def sendSensorValues(session):
-        while True:
+    while True:
 		sensorReadings = {}
 		sensorReadings[SENSOR_TOUCH]      = checkTouchPressed(touch)
 		sensorReadings[SENSOR_TEMP]       = readTemperature(temp)
 		sensorReadings[SENSOR_LIGHT]      = readLightLevel(light)
 		sensorReadings[SESSION_TIMESTAMP] = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
 		sensorReadings[SESSION_DEVICE_ID] = session[SESSION_DEVICE_ID]
-
 		sensorPacket = createPacket(service=JSON_VALUE_WIFI_DIRECT_CURRENT_PERIPHERAL_SENSOR_VALUES, payload=sensorReadings)
 		sendPacketToPi(sensorPacket)
-		
-
-
+		time.sleep(5)
 
 def connectToPi(session, piRecieveSocket):
 	global piIPAddress
