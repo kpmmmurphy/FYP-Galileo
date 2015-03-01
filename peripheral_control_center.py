@@ -58,6 +58,21 @@ chords = [upmBuzzer.DO, upmBuzzer.RE, upmBuzzer.MI, upmBuzzer.FA,
           upmBuzzer.SOL, upmBuzzer.LA, upmBuzzer.SI, upmBuzzer.DO, 
           upmBuzzer.SI]
 
+"""
+JSON serializer for objects not serializable by default json code.
+Required as the datetime object won't serialize by default.
+"""
+def json_serial(obj):
+    from datetime import datetime
+    from decimal import Decimal
+
+    if isinstance(obj, datetime):
+        serial = obj.isoformat()
+        return serial 
+
+    if isinstance(obj, Decimal):
+        return int(float(obj)) 
+
 def main():
 	piIPAddress    = ""
 	connectedToPi  = False
@@ -212,17 +227,4 @@ except KeyboardInterrupt, SystemExit:
     del buzzer
     del led
 
-"""
-JSON serializer for objects not serializable by default json code.
-Required as the datetime object won't serialize by default.
-"""
-def json_serial(obj):
-    from datetime import datetime
-    from decimal import Decimal
 
-    if isinstance(obj, datetime):
-        serial = obj.isoformat()
-        return serial 
-
-    if isinstance(obj, Decimal):
-        return int(float(obj)) 
