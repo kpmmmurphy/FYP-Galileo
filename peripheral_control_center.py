@@ -39,6 +39,8 @@ MULTICAST_GRP  = '224.1.1.1'
 MULTICAST_PORT = 5007
 DEFAULT_PORT   = 5006
 DEFAULT_SERVER_PORT = 5005
+piIPAddress = ""
+
 
 #Session Keys
 SESSION_IP        = "ip_address"
@@ -74,14 +76,14 @@ def json_serial(obj):
         return int(float(obj)) 
 
 def main():
-	piIPAddress    = ""
+	global piIPAddress
 	connectedToPi  = False
 	createSensors()
 	session  = createSession()
 	piRecieveSocket = createSocket(session[SESSION_IP], None)
 
 	while not connectedToPi:
-		connectedToPi = connectToPi(session, piRecieveSocket, piIPAddress)
+		connectedToPi = connectToPi(session, piRecieveSocket)
 
 	piRecieveSocket.close()
 	sendSensorValues(piIPAddress, session)
@@ -111,7 +113,8 @@ def createSocket(bindToIP, connectToIP):
 
 	return newSocket
 
-def sendPacketToPi(packet, piIPAddress):
+def sendPacketToPi(packet):
+	global piIPAddress
 	if piIPAddress != "":
 		try:
 			print "Creating Socket to Send sensor values ->", piIPAddress
@@ -121,7 +124,7 @@ def sendPacketToPi(packet, piIPAddress):
 		except:
 			print "RaspPi Refused Connection" 
 
-def sendSensorValues(piIPAddress, session):
+def sendSensorValues(session):
 	print "Sending Sensor Values"
 	sensorReadings = {}
 	sensorReadings[SENSOR_TOUCH]      = checkTouchPressed(touch)
@@ -130,11 +133,12 @@ def sendSensorValues(piIPAddress, session):
 	sensorReadings[SESSION_TIMESTAMP] = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
 	sensorReadings[SESSION_DEVICE_ID] = session[SESSION_DEVICE_ID]
 	print json.dumps(sensorReadings, default=json_serial)
-	sendPacketToPi(createPacket(service=JSON_VALUE_WIFI_DIRECT_CURRENT_PERIPHERAL_SENSOR_VALUES, payload=sensorReadings), piIPAddress)
-	timer = threading.Timer(10, sendSensorValues,(piIPAddress, session))
+	sendPacketToPi(createPacket(service=JSON_VALUE_WIFI_DIRECT_CURRENT_PERIPHERAL_SENSOR_VALUES, payload=sensorReadings))
+	timer = threading.Timer(10, sendSensorValues,(session))
 	timer.start()
 
 def connectToPi(session, piRecieveSocket, piIPAddress):
+	global piIPAddress
 	connected = False
 	#Connect via Multicast Channel
 	multicastSocket = createMulticatSocket(session[SESSION_IP], MULTICAST_GRP, MULTICAST_PORT)
@@ -147,7 +151,8 @@ def connectToPi(session, piRecieveSocket, piIPAddress):
 	try:
 		packet = json.loads(rawPacket)
 		if packet[JSON_KEY_WIFI_DIRECT_SERVICE] == SERVICE_PAIRED and packet[JSON_KEY_WIFI_DIRECT_PAYLOAD][SERVICE_PAIRED]['status_code'] == 200:
-			piIPAddress, piPortNo = conn.getpeername()
+			piIP, piPortNo = conn.getpeername()
+			piIPAddress = piIP
 			connected = True
 			print "Connect to RaspPi :: IP ->", piIPAddress
 	except ValueError:
