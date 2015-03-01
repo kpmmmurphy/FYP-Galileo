@@ -133,7 +133,7 @@ def sendSensorValues(session):
 	sensorReadings[SESSION_DEVICE_ID] = session[SESSION_DEVICE_ID]
 	print json.dumps(sensorReadings, default=json_serial)
 	sendPacketToPi(createPacket(service=JSON_VALUE_WIFI_DIRECT_CURRENT_PERIPHERAL_SENSOR_VALUES, payload=sensorReadings))
-	timer = threading.Timer(10, sendSensorValues,(session))
+	timer = threading.Timer(10, sendSensorValues,(session,))
 	timer.start()
 
 def connectToPi(session, piRecieveSocket):
