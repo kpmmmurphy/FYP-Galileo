@@ -114,6 +114,7 @@ def createSocket(bindToIP, connectToIP):
 def sendPacketToPi(packet, piIPAddress):
 	if piIPAddress != "":
 		try:
+			print "Creating Socket to Send sensor values ->", piIPAddress
 			piSendSocket = createSocket(bindToIP=None, connectToIP=piIPAddress)
 			piSendSocket.send(json.dumps(packet, default=json_serial))
 			piSendSocket.close()
