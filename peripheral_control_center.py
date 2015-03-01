@@ -84,12 +84,13 @@ def main():
 	while not connectedToPi:
 		connectedToPi = connectToPi(session, createSocket(session[SESSION_IP], None))
 
+	print "Starting Send Thread"
 	sendThread  = threading.Thread(target=sendSensorValues,args=(session,))
-	sendThread.daemon = True
+	#sendThread.daemon = True
 	sendThread.start()
-
+	print "Starting Recieve Thread"
 	recieveThread  = threading.Thread(target=recievePacketFromPi,args=(session,))
-	recieveThread.daemon = True
+	#recieveThread.daemon = True
 	recieveThread.start()
 
 #SOCKET AND CONNECTION STUFF
@@ -144,16 +145,18 @@ def recievePacketFromPi(session):
 
 
 def sendSensorValues(session):
+
     while True:
-		sensorReadings = {}
-		sensorReadings[SENSOR_TOUCH]      = checkTouchPressed(touch)
-		sensorReadings[SENSOR_TEMP]       = readTemperature(temp)
-		sensorReadings[SENSOR_LIGHT]      = readLightLevel(light)
-		sensorReadings[SESSION_TIMESTAMP] = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
-		sensorReadings[SESSION_DEVICE_ID] = session[SESSION_DEVICE_ID]
-		sensorPacket = createPacket(service=JSON_VALUE_WIFI_DIRECT_CURRENT_PERIPHERAL_SENSOR_VALUES, payload=sensorReadings)
-		sendPacketToPi(sensorPacket)
-		time.sleep(5)
+	sensorReadings = {}
+	sensorReadings[SENSOR_TOUCH]      = checkTouchPressed(touch)
+	sensorReadings[SENSOR_TEMP]       = readTemperature(temp)
+	sensorReadings[SENSOR_LIGHT]      = readLightLevel(light)
+	sensorReadings[SESSION_TIMESTAMP] = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+	sensorReadings[SESSION_DEVICE_ID] = session[SESSION_DEVICE_ID]
+	sensorPacket = createPacket(service=JSON_VALUE_WIFI_DIRECT_CURRENT_PERIPHERAL_SENSOR_VALUES, payload=sensorReadings)
+	time.sleep(1)
+	sendPacketToPi(sensorPacket)
+	print "Help"	
 
 def connectToPi(session, piRecieveSocket):
 	global piIPAddress
