@@ -85,8 +85,7 @@ def main():
 	while not connectedToPi:
 		connectedToPi = connectToPi(session, piRecieveSocket)
 
-	piRecieveSocket.close()
-	sendSensorValues(piIPAddress, session)
+	sendSensorValues(session)
 
 #SOCKET AND CONNECTION STUFF
 def createPacket(service, payload):
