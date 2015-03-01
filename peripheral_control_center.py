@@ -83,9 +83,34 @@ def main():
 	while not connectedToPi:
 		connectedToPi = connectToPi(session, piRecieveSocket, piIPAddress)
 
+	piRecieveSocket.close()
 	sendSensorValues(piIPAddress, session)
 
 #SOCKET AND CONNECTION STUFF
+def createPacket(service, payload):
+	_packet  = {}
+	_payload = {}
+
+	_packet[JSON_KEY_WIFI_DIRECT_SERVICE] = service 
+	_payload[service] = payload
+	_packet[JSON_KEY_WIFI_DIRECT_PAYLOAD] = _payload
+	return _packet
+
+def createSocket(bindToIP, connectToIP):
+	newSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	newSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+	#newSocket.setblocking(True)
+
+	if bindToIP is not None:
+		#For receiving 
+		newSocket.bind((bindToIP, DEFAULT_PORT))
+		newSocket.listen(5)
+	elif connectToIP is not None:
+		#For sending
+		newSocket.connect((connectToIP, DEFAULT_SERVER_PORT))
+
+	return newSocket
+
 def sendPacketToPi(packet, piIPAddress):
 	if piIPAddress != "":
 		try:
@@ -128,15 +153,6 @@ def connectToPi(session, piRecieveSocket, piIPAddress):
 		print "ValueError :: Unable to Encode Json Object"
 	return connected
 
-def createPacket(service, payload):
-	_packet  = {}
-	_payload = {}
-
-	_packet[JSON_KEY_WIFI_DIRECT_SERVICE] = service 
-	_payload[service] = payload
-	_packet[JSON_KEY_WIFI_DIRECT_PAYLOAD] = _payload
-	return _packet
-
 def createSession():
 	timestamp   = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
 	ipAddress   = getIPAddress()
@@ -150,21 +166,6 @@ def getIPAddress():
 	#TODO This should be changed when connecting to PI!!!!!!!!!!!!!!!!!!!!!!
 	s.connect(("gmail.com",80))
 	return s.getsockname()[0]
-
-def createSocket(bindToIP, connectToIP):
-	newSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	newSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-	#newSocket.setblocking(True)
-
-	if bindToIP is not None:
-		#For receiving 
-		newSocket.bind((bindToIP, DEFAULT_PORT))
-		newSocket.listen(5)
-	elif connectToIP is not None:
-		#For sending
-		newSocket.connect((connectToIP, DEFAULT_SERVER_PORT))
-
-	return newSocket
 
 def createMulticatSocket(inetIP, multicastGroup, multicastPort):
 	multicastSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
