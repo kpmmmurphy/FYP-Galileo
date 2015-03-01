@@ -137,7 +137,7 @@ def sendSensorValues(session):
 	timer = threading.Timer(10, sendSensorValues,(session))
 	timer.start()
 
-def connectToPi(session, piRecieveSocket, piIPAddress):
+def connectToPi(session, piRecieveSocket):
 	global piIPAddress
 	connected = False
 	#Connect via Multicast Channel
