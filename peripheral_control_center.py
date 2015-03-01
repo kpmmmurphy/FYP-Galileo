@@ -80,12 +80,15 @@ def main():
 	connectedToPi  = False
 	createSensors()
 	session  = createSession()
-	piRecieveSocket = createSocket(session[SESSION_IP], None)
 
 	while not connectedToPi:
-		connectedToPi = connectToPi(session, piRecieveSocket)
+		connectedToPi = connectToPi(session, createSocket(session[SESSION_IP], None))
 
-	sendSensorValues(session)
+	sendThread  = threading.Thread(target=sendSensorValues,args=(session,))
+	sendThread.start()
+
+	recieveThread  = threading.Thread(target=recievePacketFromPi,args=(session,))
+	recieveThread.start()
 
 #SOCKET AND CONNECTION STUFF
 def createPacket(service, payload):
@@ -116,22 +119,31 @@ def sendPacketToPi(packet):
 	global piIPAddress
 	if piIPAddress != "":
 		try:
-			print "Creating Socket to Send sensor values ->", piIPAddress
+			print "Sending Sensor Values to Pi"
+			print json.dumps(packet, default=json_serial)
 			piSendSocket = createSocket(bindToIP=None, connectToIP=piIPAddress)
 			piSendSocket.send(json.dumps(packet, default=json_serial))
 			piSendSocket.close()
 		except:
 			print "RaspPi Refused Connection" 
 
+def recievePacketFromPi(session):
+	piRecieveSocket = createSocket(bindToIP=session[SESSION_IP], connectToIP=None)
+	conn, addr = piRecieveSocket.accept()
+	while True:
+		print "Waiting to Recieve Packet from Pi"
+		rawPacket  = conn.recv(1024)
+		print rawPacket
+
+
 def sendSensorValues(session):
-	print "Sending Sensor Values"
 	sensorReadings = {}
 	sensorReadings[SENSOR_TOUCH]      = checkTouchPressed(touch)
 	sensorReadings[SENSOR_TEMP]       = readTemperature(temp)
 	sensorReadings[SENSOR_LIGHT]      = readLightLevel(light)
 	sensorReadings[SESSION_TIMESTAMP] = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
 	sensorReadings[SESSION_DEVICE_ID] = session[SESSION_DEVICE_ID]
-	print json.dumps(sensorReadings, default=json_serial)
+
 	sendPacketToPi(createPacket(service=JSON_VALUE_WIFI_DIRECT_CURRENT_PERIPHERAL_SENSOR_VALUES, payload=sensorReadings))
 	timer = threading.Timer(10, sendSensorValues,(session,))
 	timer.start()
