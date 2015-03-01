@@ -88,9 +88,12 @@ def main():
 #SOCKET AND CONNECTION STUFF
 def sendPacketToPi(packet, piIPAddress):
 	if piIPAddress != "":
-		piSendSocket = createSocket(None, piIPAddress)
-		piSendSocket.send(json.dumps(packet, default=json_serial))
-		piSendSocket.close()
+		try:
+			piSendSocket = createSocket(bindToIP=None, connectToIP=piIPAddress)
+			piSendSocket.send(json.dumps(packet, default=json_serial))
+			piSendSocket.close()
+		except:
+			print "RaspPi Refused Connection" 
 
 def sendSensorValues(piIPAddress, session):
 	print "Sending Sensor Values"
@@ -173,7 +176,6 @@ def createMulticatSocket(inetIP, multicastGroup, multicastPort):
 	multicastSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 	#multicastSocket.setblocking(True)	
 	return multicastSocket
-
 
 #SENSORS----------------------
 def createSensors():
