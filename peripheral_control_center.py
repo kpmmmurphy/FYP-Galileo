@@ -89,10 +89,10 @@ def main():
 	sendThread.setDaemon(True)
 	sendThread.start()
 
-
 	print "Starting Recieve Thread"
 	recieveThread  = threading.Thread(target=recievePacketFromPi,args=(session,))
 	recieveThread.setDaemon(True)
+	recieveThread.start()
 
 
 #SOCKET AND CONNECTION STUFF
@@ -131,7 +131,12 @@ def sendPacketToPi(packet):
 			piSendSocket.send(packetString)
 			piSendSocket.close()
 		except:
-			print "RaspPi Refused Connection" 
+			print "RaspPi Refused Connection, trying reconnect in 10 seconds"
+			connectedToPi = False
+			while not connectedToPi:
+				time.sleep(10)
+				connectedToPi = connectToPi(session=session, piRecieveSocket=createSocket(session[SESSION_IP], None))
+
 
 def recievePacketFromPi(session):
 	piRecieveSocket = createSocket(bindToIP=session[SESSION_IP], connectToIP=None)
@@ -147,18 +152,16 @@ def recievePacketFromPi(session):
 
 
 def sendSensorValues(session):
-
     while True:
-	sensorReadings = {}
-	sensorReadings[SENSOR_TOUCH]      = checkTouchPressed(touch)
-	sensorReadings[SENSOR_TEMP]       = readTemperature(temp)
-	sensorReadings[SENSOR_LIGHT]      = readLightLevel(light)
-	sensorReadings[SESSION_TIMESTAMP] = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
-	sensorReadings[SESSION_DEVICE_ID] = session[SESSION_DEVICE_ID]
-	sensorPacket = createPacket(service=JSON_VALUE_WIFI_DIRECT_CURRENT_PERIPHERAL_SENSOR_VALUES, payload=sensorReadings)
-
-	sendPacketToPi(sensorPacket)
-	time.sleep(10)	
+		sensorReadings = {}
+		sensorReadings[SENSOR_TOUCH]      = checkTouchPressed(touch)
+		sensorReadings[SENSOR_TEMP]       = readTemperature(temp)
+		sensorReadings[SENSOR_LIGHT]      = readLightLevel(light)
+		sensorReadings[SESSION_TIMESTAMP] = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+		sensorReadings[SESSION_DEVICE_ID] = session[SESSION_DEVICE_ID]
+		sensorPacket = createPacket(service=JSON_VALUE_WIFI_DIRECT_CURRENT_PERIPHERAL_SENSOR_VALUES, payload=sensorReadings)
+		sendPacketToPi(sensorPacket)
+		time.sleep(10)	
 
 def connectToPi(session, piRecieveSocket):
 	global piIPAddress
@@ -178,9 +181,10 @@ def connectToPi(session, piRecieveSocket):
 			piIPAddress = piIP
 			connected = True
 			print "Connect to RaspPi :: IP ->", piIPAddress
+			return connected
 	except ValueError:
 		print "ValueError :: Unable to Encode Json Object"
-	return connected
+	
 
 def createSession():
 	timestamp   = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
@@ -191,12 +195,16 @@ def createSession():
 	return sess
 
 def getIPAddress():
-	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-	#TODO This should be changed when connecting to PI!!!!!!!!!!!!!!!!!!!!!!
-	s.connect(("192.168.42.1",80))
-	myIP = s.getsockname()[0]
-	print "My IP : ", myIP
-	return myIP
+	try:
+		s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+		s.connect(("192.168.42.1",80))
+		myIP = s.getsockname()[0]
+		print "My IP : ", myIP
+		return myIP
+	except:
+		print "Unable to get IP Address, Retrying in 10 Seconds"
+		time.sleep(10)
+		getIPAddress()
 
 def createMulticatSocket(inetIP, multicastGroup, multicastPort):
 	multicastSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
