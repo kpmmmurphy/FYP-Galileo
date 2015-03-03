@@ -243,7 +243,7 @@ def readTemperature(temp):
 	return temp.value()
 
 def readLightLevel(light):
-	return light.value()
+	return light.raw_value()
 
 def flashLed(led):
 	led.on()
