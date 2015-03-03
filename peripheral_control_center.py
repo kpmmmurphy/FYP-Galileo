@@ -156,9 +156,9 @@ def sendSensorValues(session):
 	sensorReadings[SESSION_TIMESTAMP] = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
 	sensorReadings[SESSION_DEVICE_ID] = session[SESSION_DEVICE_ID]
 	sensorPacket = createPacket(service=JSON_VALUE_WIFI_DIRECT_CURRENT_PERIPHERAL_SENSOR_VALUES, payload=sensorReadings)
-	time.sleep(1)
+
 	sendPacketToPi(sensorPacket)
-	print "Help"	
+	time.sleep(10)	
 
 def connectToPi(session, piRecieveSocket):
 	global piIPAddress
