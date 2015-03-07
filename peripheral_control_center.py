@@ -54,6 +54,7 @@ JSON_KEY_WIFI_DIRECT_PAYLOAD = "payload"
 SERVICE_CONNECT = "connect"
 SERVICE_PAIRED  = "paired"
 JSON_VALUE_WIFI_DIRECT_CURRENT_PERIPHERAL_SENSOR_VALUES = "peripheral_sensor_values"
+SERVICE_FlASH_LED = "flash_led"
 
 #Buzzer Notes
 chords = [upmBuzzer.DO, upmBuzzer.RE, upmBuzzer.MI, upmBuzzer.FA, 
@@ -108,7 +109,7 @@ def createPacket(service, payload):
 def createSocket(bindToIP, connectToIP):
 	newSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	newSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-	#newSocket.setblocking(True)
+	newSocket.setblocking(True)
 
 	if bindToIP is not None:
 		#For receiving 
@@ -147,7 +148,13 @@ def recievePacketFromPi(session):
 		rawPacket  = conn.recv(1024)
 		print rawPacket
 		try:
-			packet = json.loads(rawPacket)
+			packet  = json.loads(rawPacket)
+			try:
+				serivce = packet[JSON_KEY_WIFI_DIRECT_SERVICE]
+				if serivce == SERVICE_FlASH_LED:
+					flashLed(led)
+			except KeyError:
+				print "Recieve Packet From Pi -> KeyError Thrown"
 		except ValueError:
 			print "Unable to Decode JSON Object"
 
