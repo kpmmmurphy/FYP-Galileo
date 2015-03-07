@@ -142,8 +142,8 @@ def sendPacketToPi(packet):
 
 def recievePacketFromPi(session):
 	piRecieveSocket = createSocket(bindToIP=session[SESSION_IP], connectToIP=None)
-	conn, addr = piRecieveSocket.accept()
 	while True:
+		conn, addr = piRecieveSocket.accept()
 		print "Waiting to Recieve Packet from Pi"
 		rawPacket  = conn.recv(1024)
 		print rawPacket
