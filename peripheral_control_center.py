@@ -135,6 +135,7 @@ def sendPacketToPi(packet):
 			connectedToPi = False
 			while not connectedToPi:
 				time.sleep(10)
+				session = createSession()
 				connectedToPi = connectToPi(session=session, piRecieveSocket=createSocket(session[SESSION_IP], None))
 
 
