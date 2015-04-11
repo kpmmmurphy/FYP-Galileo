@@ -1,2 +1,0 @@
-
-connmanctl connect wifi_0cd292d3b6e8_526173704150_managed_psk
